@@ -18,7 +18,7 @@ Bot de Discord focado em wipes de Rust com scraping do just-wiped + Steam Query.
 
 ## Configuração rápida
 1. Copie `.env.example` para `.env` e preencha `DISCORD_BOT_TOKEN`. Opcional: `DISCORD_GUILD_ID` para registrar comandos apenas em um servidor.
-2. Ajuste intervalos/limites se quiser (padrão: 5 min).
+2. Ajuste intervalos/limites se quiser (padrão: 5 min). `LIST_PAGES` agora vem 8 e `TOP_DETAIL_FETCH` 80 para cobrir mais servidores; `TOP_REGION_LIMIT=9999` lista todos por região (dividindo em várias mensagens se passar do limite de embed).
 3. Opcional: defina um cargo para pingar alertas (`ALERT_ROLE_ID`) e o fuso para datas/horários (`TIMEZONE`).
 
 ### Variáveis de ambiente principais

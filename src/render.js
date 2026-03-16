@@ -44,6 +44,17 @@ function buildGenericListEmbed(title, color, servers, footerText) {
   return new EmbedBuilder().setTitle(title).setColor(color).setDescription(clampText(lines.join('\n'), 4000)).setFooter({ text: footerText });
 }
 
+function buildRegionEmbeds(title, color, servers, footerText) {
+  const lines = servers.length ? servers.map(briefServerLine) : ['Sem servidores no momento.'];
+  return chunkText(lines, 3800).map((chunk, index) =>
+    new EmbedBuilder()
+      .setTitle(index === 0 ? title : `${title} (continuação)`)
+      .setColor(color)
+      .setDescription(chunk)
+      .setFooter({ text: footerText })
+  );
+}
+
 function buildFavoritesEmbed(servers, footerText) {
   const desc = servers.length ? servers.map(favoriteBlock).join('\n\n') : 'Sem favoritos encontrados agora.';
   return new EmbedBuilder().setTitle('⭐ Favoritos / conhecidos').setColor(0xeab308).setDescription(clampText(desc, 4000)).setFooter({ text: footerText });
@@ -118,5 +129,6 @@ module.exports = {
   buildPopularEmbed,
   buildUpcomingEmbeds,
   buildAlertsEmbed,
-  buildServerInfoEmbed
+  buildServerInfoEmbed,
+  buildRegionEmbeds
 };

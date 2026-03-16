@@ -18,7 +18,8 @@ const {
   buildPopularEmbed,
   buildUpcomingEmbeds,
   buildAlertsEmbed,
-  buildServerInfoEmbed
+  buildServerInfoEmbed,
+  buildRegionEmbeds
 } = require('./src/render');
 const { nowIso, formatDateTime, calculateForceWipeDate, cleanText, TIMEZONE, formatCountdown } = require('./src/utils');
 
@@ -36,12 +37,12 @@ const CHANNEL_SPECS = [
 ];
 
 const UPDATE_INTERVAL_MINUTES = Number(process.env.UPDATE_INTERVAL_MINUTES || 5);
-const LIST_PAGES = Number(process.env.LIST_PAGES || 4);
+const LIST_PAGES = Number(process.env.LIST_PAGES || 8);
 const TOP_RECENT_LIMIT = Number(process.env.TOP_RECENT_LIMIT || 18);
-const TOP_REGION_LIMIT = Number(process.env.TOP_REGION_LIMIT || 12);
+const TOP_REGION_LIMIT = Number(process.env.TOP_REGION_LIMIT || 9999);
 const TOP_UPCOMING_LIMIT = Number(process.env.TOP_UPCOMING_LIMIT || 20);
 const TOP_POPULAR_LIMIT = Number(process.env.TOP_POPULAR_LIMIT || 15);
-const TOP_DETAIL_FETCH = Number(process.env.TOP_DETAIL_FETCH || 24);
+const TOP_DETAIL_FETCH = Number(process.env.TOP_DETAIL_FETCH || 80);
 const ALERT_ROLE_ID = process.env.ALERT_ROLE_ID || '';
 const UPCOMING_ALERT_MINUTES = Number(process.env.UPCOMING_ALERT_MINUTES || 180);
 const RECENT_ALERT_MINUTES = Number(process.env.RECENT_ALERT_MINUTES || 120);
@@ -243,9 +244,9 @@ async function refreshGuildHub(guild) {
   state.messages.favorites = await upsertSingleEmbed(favorites, state.messages.favorites, buildFavoritesEmbed(snapshot.favorites, footer));
   state.messages.vanilla = await upsertSingleEmbed(vanilla, state.messages.vanilla, buildPopularEmbed('🏆 Vanilla / oficiais', snapshot.vanilla, footer));
   state.messages.modded = await upsertSingleEmbed(modded, state.messages.modded, buildPopularEmbed('⚙️ 2x / 3x / curados', snapshot.modded, footer, 0x8b5cf6));
-  state.messages.br = await upsertSingleEmbed(br, state.messages.br, buildGenericListEmbed('🇧🇷 Região Brasil', 0x2563eb, snapshot.byRegion.br, footer));
-  state.messages.eu = await upsertSingleEmbed(eu, state.messages.eu, buildGenericListEmbed('🇪🇺 Região Europa', 0x2563eb, snapshot.byRegion.eu, footer));
-  state.messages.na = await upsertSingleEmbed(na, state.messages.na, buildGenericListEmbed('🇺🇸 Região América do Norte', 0x2563eb, snapshot.byRegion.na, footer));
+  state.messages.br = await upsertMultiEmbeds(br, state.messages.br, buildRegionEmbeds('🇧🇷 Região Brasil', 0x2563eb, snapshot.byRegion.br, footer));
+  state.messages.eu = await upsertMultiEmbeds(eu, state.messages.eu, buildRegionEmbeds('🇪🇺 Região Europa', 0x2563eb, snapshot.byRegion.eu, footer));
+  state.messages.na = await upsertMultiEmbeds(na, state.messages.na, buildRegionEmbeds('🇺🇸 Região América do Norte', 0x2563eb, snapshot.byRegion.na, footer));
   state.messages.alerts = await upsertSingleEmbed(alerts, state.messages.alerts, buildAlertsEmbed(snapshot, footer));
   state.messages.upcoming = await upsertMultiEmbeds(upcoming, state.messages.upcoming, buildUpcomingEmbeds(snapshot.upcoming, footer));
   await notifyAlerts(alerts, state, snapshot, footer);
