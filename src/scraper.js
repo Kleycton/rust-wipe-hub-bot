@@ -111,14 +111,18 @@ async function fetchBMPage(params) {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (Array.isArray(value)) {
-      for (const v of value) search.append(key, v);
+      const k = key.includes('filter[countries]') ? `${key}[]` : key;
+      for (const v of value) search.append(k, v);
     } else if (value != null) {
       search.append(key, value);
     }
   }
   const url = `${BM_BASE}?${search.toString()}`;
   const res = await axios.get(url, { timeout: 12000, headers: HEADERS, validateStatus: (s) => s >= 200 && s < 500 });
-  if (res.status >= 400) throw new Error(`BM ${res.status}: ${res.data?.errors?.[0]?.detail || 'request failed'}`);
+  if (res.status >= 400) {
+    const detail = res.data?.errors?.map((e) => e.detail || e.title).join(' | ');
+    throw new Error(`BM ${res.status}: ${detail || 'request failed'}`);
+  }
   return res.data;
 }
 
