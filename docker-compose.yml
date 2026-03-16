@@ -1,0 +1,9 @@
+services:
+  rust-wipe-hub-bot:
+    build: .
+    container_name: rust-wipe-hub-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./store.json:/app/store.json

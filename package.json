@@ -1,0 +1,17 @@
+{
+  "name": "rust-wipe-hub-bot-pro",
+  "version": "6.1.0",
+  "description": "Hub profissional de wipes Rust com melhor detecção BR/EU/NA",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "discord.js": "^14.19.3",
+    "dotenv": "^16.4.7",
+    "gamedig": "^5.0.0"
+  }
+}

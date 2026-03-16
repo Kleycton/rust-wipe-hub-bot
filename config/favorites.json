@@ -1,0 +1,44 @@
+{
+  "favorites": [
+    {
+      "name": "Brasa",
+      "aliases": [
+        "brasa",
+        "brasa rust"
+      ]
+    },
+    {
+      "name": "Rustoria BR Main",
+      "aliases": [
+        "rustoria br main",
+        "br main",
+        "rustoria main"
+      ]
+    },
+    {
+      "name": "BR Long",
+      "aliases": [
+        "br long",
+        "rustoria br long"
+      ]
+    },
+    {
+      "name": "Rustafied",
+      "aliases": [
+        "rustafied",
+        "rustafied br",
+        "rustafied eu",
+        "rustafied us"
+      ]
+    },
+    {
+      "name": "Rustoria",
+      "aliases": [
+        "rustoria",
+        "rustoria br",
+        "rustoria eu",
+        "rustoria us"
+      ]
+    }
+  ]
+}
