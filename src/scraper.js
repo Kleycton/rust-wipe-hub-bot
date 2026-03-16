@@ -6,7 +6,8 @@ const { queryRustServer } = require('./query');
 
 const BASE_URL = 'https://just-wiped.net';
 const HEADERS = {
-  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+  accept: 'application/json'
 };
 
 const EU = new Set(['austria','belgium','bulgaria','croatia','cyprus','czech republic','denmark','estonia','finland','france','germany','greece','hungary','iceland','ireland','italy','latvia','lithuania','luxembourg','malta','netherlands','norway','poland','portugal','romania','slovakia','slovenia','spain','sweden','switzerland','united kingdom','uk','england','scotland','wales','gb','gbr','irl','de','fr','es','pt','it','pl','se','no','fi','dk','nl','be','cz','sk','hu','at','ch','ro','bg','gr']);
@@ -107,23 +108,36 @@ const REGION_COUNTRIES = {
   na: ['US','CA','MX']
 };
 
-async function fetchBMPage(params) {
+function buildBMUrl(params, countriesKeyVariant = 'filter[countries]') {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (Array.isArray(value)) {
-      const k = key.includes('filter[countries]') ? `${key}[]` : key;
+      const k = key === 'filter[countries]' ? countriesKeyVariant : key;
       for (const v of value) search.append(k, v);
     } else if (value != null) {
       search.append(key, value);
     }
   }
-  const url = `${BM_BASE}?${search.toString()}`;
-  const res = await axios.get(url, { timeout: 12000, headers: HEADERS, validateStatus: (s) => s >= 200 && s < 500 });
-  if (res.status >= 400) {
-    const detail = res.data?.errors?.map((e) => e.detail || e.title).join(' | ');
-    throw new Error(`BM ${res.status}: ${detail || 'request failed'}`);
+  return `${BM_BASE}?${search.toString()}`;
+}
+
+async function fetchBMPage(params) {
+  const variants = ['filter[countries]', 'filter[countries][]'];
+  let lastError;
+  for (const variant of variants) {
+    const url = buildBMUrl(params, variant);
+    try {
+      const res = await axios.get(url, { timeout: 12000, headers: HEADERS, validateStatus: (s) => s >= 200 && s < 500 });
+      if (res.status >= 400) {
+        const detail = res.data?.errors?.map((e) => e.detail || e.title).join(' | ');
+        throw new Error(`BM ${res.status}: ${detail || 'request failed'}`);
+      }
+      return res.data;
+    } catch (error) {
+      lastError = error;
+    }
   }
-  return res.data;
+  throw lastError;
 }
 
 function mapBMServer(item) {

@@ -38,7 +38,7 @@ const CHANNEL_SPECS = [
 ];
 
 const UPDATE_INTERVAL_MINUTES = Number(process.env.UPDATE_INTERVAL_MINUTES || 5);
-const LIST_PAGES = Number(process.env.LIST_PAGES || 8);
+const LIST_PAGES = Number(process.env.LIST_PAGES || 12);
 const TOP_RECENT_LIMIT = Number(process.env.TOP_RECENT_LIMIT || 18);
 const TOP_REGION_LIMIT = Number(process.env.TOP_REGION_LIMIT || 9999);
 const TOP_UPCOMING_LIMIT = Number(process.env.TOP_UPCOMING_LIMIT || 20);
