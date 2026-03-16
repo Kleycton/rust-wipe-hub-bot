@@ -9,7 +9,8 @@ const {
 } = require('discord.js');
 
 const { loadStore, saveStore, ensureGuild } = require('./src/store');
-const { fetchRecentServers, fetchTopDetailedServers } = require('./src/scraper');
+const { fetchRecentServers, fetchTopDetailedServers, fetchBattleMetricsByRegion } = require('./src/scraper');
+const { uniqueBy } = require('./src/utils');
 const { loadFavorites, isFavorite } = require('./src/favorites');
 const {
   buildInfoEmbed,
@@ -47,6 +48,8 @@ const ALERT_ROLE_ID = process.env.ALERT_ROLE_ID || '';
 const UPCOMING_ALERT_MINUTES = Number(process.env.UPCOMING_ALERT_MINUTES || 180);
 const RECENT_ALERT_MINUTES = Number(process.env.RECENT_ALERT_MINUTES || 120);
 const ALERT_COOLDOWN_HOURS = Number(process.env.ALERT_COOLDOWN_HOURS || 12);
+const BM_PAGES = Number(process.env.BM_PAGES || 2);
+const BM_PAGE_SIZE = Number(process.env.BM_PAGE_SIZE || 100);
 
 const store = loadStore();
 const favoritesCfg = loadFavorites();
@@ -225,7 +228,9 @@ async function upsertMultiEmbeds(channel, existingIds, embeds) {
 async function refreshGuildHub(guild) {
   const state = await ensureCategoryAndChannels(guild);
   const recentAll = await fetchRecentServers({ pages: LIST_PAGES });
-  const detailed = await fetchTopDetailedServers(recentAll, TOP_DETAIL_FETCH);
+  const bm = await fetchBattleMetricsByRegion({ pages: BM_PAGES, pageSize: BM_PAGE_SIZE });
+  const merged = uniqueBy([...recentAll, ...bm], (s) => s.connect || `${s.name}-${s.country}-${s.port || ''}`);
+  const detailed = await fetchTopDetailedServers(merged, TOP_DETAIL_FETCH);
   const snapshot = buildSnapshot(recentAll, detailed);
   const updatedAt = formatDateTime(new Date());
   const footer = buildFooter();

@@ -94,6 +94,80 @@ async function fetchRecentServers({ pages = 4 } = {}) {
   return uniqueBy(out, (s) => s.id);
 }
 
+// ---------- BattleMetrics fallback / enrichment ----------
+// API docs hint: https://api.battlemetrics.com/servers?filter[game]=rust&filter[countries]=BR&page[size]=100&page[number]=1
+const BM_BASE = 'https://api.battlemetrics.com/servers';
+
+const REGION_COUNTRIES = {
+  br: ['BR'],
+  eu: ['PT','ES','FR','DE','NL','BE','IT','SE','NO','DK','FI','PL','CZ','SK','HU','AT','CH','GB','IE','UA','RO','BG','GR','RS','HR','SI','BA','MK','AL','LT','LV','EE'],
+  na: ['US','CA','MX']
+};
+
+async function fetchBMPage(params) {
+  const url = `${BM_BASE}?${new URLSearchParams(params).toString()}`;
+  const res = await axios.get(url, { timeout: 12000, headers: HEADERS });
+  return res.data;
+}
+
+function mapBMServer(item) {
+  const a = item.attributes || {};
+  const details = a.details || {};
+  const country = a.country || 'Unknown';
+  const region = classifyRegion(country, a.name || '');
+  const host = a.ip || a.address || null;
+  const port = a.port || null;
+  const lastWipeSeconds = details.rust_last_wipe || details.rust_last_wipe_seconds || null;
+  const lastWipe = lastWipeSeconds ? new Date(lastWipeSeconds * 1000) : null;
+  return {
+    id: `bm-${item.id}`,
+    name: safeName(a.name || 'Unknown'),
+    country,
+    region,
+    tier: inferTier(a.name || ''),
+    url: `https://www.battlemetrics.com/servers/rust/${item.id}`,
+    lastWipe,
+    rating: a.rank ? Math.max(0, 100 - a.rank) : 0,
+    playersCurrent: a.players ?? 0,
+    playersMax: a.maxPlayers ?? 0,
+    map: details.map ?? details.level ?? 'Unknown',
+    maxGroup: details.maxGroupSize ?? null,
+    hoursSinceWipe: lastWipe ? (Date.now() - lastWipe.getTime()) / (1000 * 60 * 60) : null,
+    host,
+    port,
+    connect: host && port ? `connect ${host}:${port}` : null
+  };
+}
+
+async function fetchBattleMetricsServers({ countries = [], pages = 1, pageSize = 100 }) {
+  const results = [];
+  for (let page = 1; page <= pages; page += 1) {
+    const data = await fetchBMPage({
+      'filter[game]': 'rust',
+      'filter[countries]': countries.join(','),
+      'page[size]': pageSize,
+      'page[number]': page
+    });
+    const items = (data?.data || []).map(mapBMServer);
+    results.push(...items);
+    if (!data?.data || data.data.length < pageSize) break;
+  }
+  return results;
+}
+
+async function fetchBattleMetricsByRegion({ pages = 1, pageSize = 100 }) {
+  const all = [];
+  for (const [region, countries] of Object.entries(REGION_COUNTRIES)) {
+    try {
+      const res = await fetchBattleMetricsServers({ countries, pages, pageSize });
+      all.push(...res.map((s) => ({ ...s, region })));
+    } catch (error) {
+      console.error(`Erro BattleMetrics região ${region}:`, error.message);
+    }
+  }
+  return uniqueBy(all, (s) => s.connect || `${s.name}-${s.country}-${s.port || ''}`);
+}
+
 function parseRawWipeDate(text) {
   const t = cleanText(text);
   const m = t.match(/(\d{2})\.(\d{2})\.(\d{4})\s*-\s*(\d{2}):(\d{2})\s*UTC/i);
@@ -173,3 +247,4 @@ async function fetchTopDetailedServers(servers, limit = 24) {
 }
 
 module.exports = { fetchRecentServers, fetchTopDetailedServers };
+module.exports.fetchBattleMetricsByRegion = fetchBattleMetricsByRegion;
