@@ -9,30 +9,33 @@ const HEADERS = {
   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
 };
 
-const EU = new Set(['Austria','Belgium','Bulgaria','Croatia','Cyprus','Czech Republic','Denmark','Estonia','Finland','France','Germany','Greece','Hungary','Iceland','Ireland','Italy','Latvia','Lithuania','Luxembourg','Malta','Netherlands','Norway','Poland','Portugal','Romania','Slovakia','Slovenia','Spain','Sweden','Switzerland','United Kingdom','UK','England','Scotland','Wales']);
-const NA = new Set(['United States','USA','Canada','Mexico']);
-const SA = new Set(['Brazil','Argentina','Chile','Colombia','Peru','Uruguay','Paraguay','Bolivia','Ecuador','Venezuela']);
+const EU = new Set(['austria','belgium','bulgaria','croatia','cyprus','czech republic','denmark','estonia','finland','france','germany','greece','hungary','iceland','ireland','italy','latvia','lithuania','luxembourg','malta','netherlands','norway','poland','portugal','romania','slovakia','slovenia','spain','sweden','switzerland','united kingdom','uk','england','scotland','wales','gb','gbr','irl','de','fr','es','pt','it','pl','se','no','fi','dk','nl','be','cz','sk','hu','at','ch','ro','bg','gr']);
+const NA = new Set(['united states','usa','canada','mexico','us','ca','mx','na']);
+const SA = new Set(['brazil','brasil','argentina','chile','colombia','peru','uruguay','paraguay','bolivia','ecuador','venezuela','br','bra','latam','south america','sa']);
 
 function classifyRegion(country, name) {
   const c = cleanText(country).toLowerCase();
   const n = cleanText(name).toLowerCase();
 
   if (
-    SA.has(country) ||
-    /(br|brazil|brasil|south america|latam|sa)/.test(n) ||
-    /(brazil|brasil|south america|latam)/.test(c)
+    SA.has(c) ||
+    SA.has(country.toLowerCase?.() || '') ||
+    /\b(br|brazil|brasil|south america|latam|sa)\b/.test(n) ||
+    /\b(brazil|brasil|south america|latam|sa)\b/.test(c)
   ) return 'br';
 
   if (
-    EU.has(country) ||
-    /(eu|europe|eu west|eu east|uk)/.test(n) ||
-    /(europe|united kingdom|uk|england)/.test(c)
+    EU.has(c) ||
+    EU.has(country.toLowerCase?.() || '') ||
+    /\b(eu|europe|eu west|eu east|uk)\b/.test(n) ||
+    /\b(europe|united kingdom|uk|england|gb)\b/.test(c)
   ) return 'eu';
 
   if (
-    NA.has(country) ||
-    /(us|usa|na|north america|canada)/.test(n) ||
-    /(united states|usa|canada|north america)/.test(c)
+    NA.has(c) ||
+    NA.has(country.toLowerCase?.() || '') ||
+    /\b(us|usa|na|north america|canada)\b/.test(n) ||
+    /\b(united states|usa|canada|north america|mx)\b/.test(c)
   ) return 'na';
 
   return 'other';
