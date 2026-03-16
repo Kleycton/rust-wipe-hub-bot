@@ -31,3 +31,4 @@ Bot de Discord focado em wipes de Rust com scraping do just-wiped + Steam Query.
 - `ALERT_COOLDOWN_HOURS` (cooldown por servidor entre alertas, padrão 12h)
 - `TIMEZONE` (padrão `America/Sao_Paulo`)
 - BattleMetrics scraping: `BM_PAGES` (padrão 2) e `BM_PAGE_SIZE` (padrão 100) para buscar servidores adicionais por região.
+- BattleMetrics global: `BM_GLOBAL_PAGES` (padrão 2) para trazer também o ranking global (mais chances de capturar BR que não têm país marcado corretamente).

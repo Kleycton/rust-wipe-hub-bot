@@ -19,23 +19,23 @@ function classifyRegion(country, name) {
 
   if (
     SA.has(c) ||
-    SA.has(country.toLowerCase?.() || '') ||
-    /\b(br|brazil|brasil|south america|latam|sa)\b/.test(n) ||
-    /\b(brazil|brasil|south america|latam|sa)\b/.test(c)
+    SA.has((country || '').toLowerCase()) ||
+    /(\\b|\\s)(br|brazil|brasil|south america|latam|sa)(\\b|\\s)/i.test(n) ||
+    /(\\b|\\s)(brazil|brasil|south america|latam|sa)(\\b|\\s)/i.test(c)
   ) return 'br';
 
   if (
     EU.has(c) ||
-    EU.has(country.toLowerCase?.() || '') ||
-    /\b(eu|europe|eu west|eu east|uk)\b/.test(n) ||
-    /\b(europe|united kingdom|uk|england|gb)\b/.test(c)
+    EU.has((country || '').toLowerCase()) ||
+    /(\\b|\\s)(eu|europe|eu west|eu east|uk)(\\b|\\s)/i.test(n) ||
+    /(\\b|\\s)(europe|united kingdom|uk|england|gb)(\\b|\\s)/i.test(c)
   ) return 'eu';
 
   if (
     NA.has(c) ||
-    NA.has(country.toLowerCase?.() || '') ||
-    /\b(us|usa|na|north america|canada)\b/.test(n) ||
-    /\b(united states|usa|canada|north america|mx)\b/.test(c)
+    NA.has((country || '').toLowerCase()) ||
+    /(\\b|\\s)(us|usa|na|north america|canada|mx)(\\b|\\s)/i.test(n) ||
+    /(\\b|\\s)(united states|usa|canada|north america|mx)(\\b|\\s)/i.test(c)
   ) return 'na';
 
   return 'other';
@@ -171,6 +171,27 @@ async function fetchBattleMetricsByRegion({ pages = 1, pageSize = 100 }) {
   return uniqueBy(all, (s) => s.connect || `${s.name}-${s.country}-${s.port || ''}`);
 }
 
+async function fetchBattleMetricsGlobal({ pages = 1, pageSize = 100 }) {
+  const all = [];
+  for (let page = 1; page <= pages; page += 1) {
+    try {
+      const data = await fetchBMPage({
+        'filter[game]': 'rust',
+        'page[size]': pageSize,
+        'page[number]': page,
+        'sort': '-players'
+      });
+      const items = (data?.data || []).map(mapBMServer);
+      all.push(...items);
+      if (!data?.data || data.data.length < pageSize) break;
+    } catch (error) {
+      console.error('Erro BattleMetrics global:', error.message);
+      break;
+    }
+  }
+  return uniqueBy(all, (s) => s.connect || `${s.name}-${s.country}-${s.port || ''}`);
+}
+
 function parseRawWipeDate(text) {
   const t = cleanText(text);
   const m = t.match(/(\d{2})\.(\d{2})\.(\d{4})\s*-\s*(\d{2}):(\d{2})\s*UTC/i);
@@ -249,5 +270,9 @@ async function fetchTopDetailedServers(servers, limit = 24) {
   return out;
 }
 
-module.exports = { fetchRecentServers, fetchTopDetailedServers };
-module.exports.fetchBattleMetricsByRegion = fetchBattleMetricsByRegion;
+module.exports = {
+  fetchRecentServers,
+  fetchTopDetailedServers,
+  fetchBattleMetricsByRegion,
+  fetchBattleMetricsGlobal
+};

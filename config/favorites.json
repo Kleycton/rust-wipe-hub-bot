@@ -39,6 +39,35 @@
         "rustoria eu",
         "rustoria us"
       ]
+    },
+    {
+      "name": "Brasa.gg",
+      "aliases": [
+        "brasa.gg",
+        "brasa",
+        "brasa 2x",
+        "brasa gg",
+        "brasa rust",
+        "brasa br 2x"
+      ]
+    },
+    {
+      "name": "Rustoria BR Main",
+      "aliases": [
+        "rustoria br main",
+        "br main",
+        "br-main",
+        "rustoria main br"
+      ]
+    },
+    {
+      "name": "Rustoria BR Long",
+      "aliases": [
+        "rustoria br long",
+        "br long",
+        "br-long",
+        "rustoria long br"
+      ]
     }
   ]
 }
