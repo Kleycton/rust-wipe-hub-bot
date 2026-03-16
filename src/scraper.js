@@ -108,8 +108,17 @@ const REGION_COUNTRIES = {
 };
 
 async function fetchBMPage(params) {
-  const url = `${BM_BASE}?${new URLSearchParams(params).toString()}`;
-  const res = await axios.get(url, { timeout: 12000, headers: HEADERS });
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (Array.isArray(value)) {
+      for (const v of value) search.append(key, v);
+    } else if (value != null) {
+      search.append(key, value);
+    }
+  }
+  const url = `${BM_BASE}?${search.toString()}`;
+  const res = await axios.get(url, { timeout: 12000, headers: HEADERS, validateStatus: (s) => s >= 200 && s < 500 });
+  if (res.status >= 400) throw new Error(`BM ${res.status}: ${res.data?.errors?.[0]?.detail || 'request failed'}`);
   return res.data;
 }
 
@@ -147,7 +156,7 @@ async function fetchBattleMetricsServers({ countries = [], pages = 1, pageSize =
   for (let page = 1; page <= pages; page += 1) {
     const data = await fetchBMPage({
       'filter[game]': 'rust',
-      'filter[countries]': countries.join(','),
+      'filter[countries]': countries, // repeated params
       'page[size]': pageSize,
       'page[number]': page
     });
@@ -179,7 +188,7 @@ async function fetchBattleMetricsGlobal({ pages = 1, pageSize = 100 }) {
         'filter[game]': 'rust',
         'page[size]': pageSize,
         'page[number]': page,
-        'sort': '-players'
+        sort: '-players'
       });
       const items = (data?.data || []).map(mapBMServer);
       all.push(...items);

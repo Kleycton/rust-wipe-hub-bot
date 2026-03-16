@@ -32,3 +32,4 @@ Bot de Discord focado em wipes de Rust com scraping do just-wiped + Steam Query.
 - `TIMEZONE` (padrão `America/Sao_Paulo`)
 - BattleMetrics scraping: `BM_PAGES` (padrão 2) e `BM_PAGE_SIZE` (padrão 100) para buscar servidores adicionais por região.
 - BattleMetrics global: `BM_GLOBAL_PAGES` (padrão 2) para trazer também o ranking global (mais chances de capturar BR que não têm país marcado corretamente).
+Observação: a API do BattleMetrics limita a 100 por página e exige o parâmetro `filter[countries]` repetido; já implementado no código.
